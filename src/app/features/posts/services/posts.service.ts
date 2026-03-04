@@ -23,11 +23,16 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
+  currentPage = signal(1);
+  lastPage = signal(1);
+
   loadPosts() {
-    return this.http.get<any>(`${this.api}/posts`).pipe(
+    return this.http.get<any>(`${this.api}/posts?page=${this.currentPage()}&limit=5`).pipe(
       retry(1),
-      delay(500),
-      tap((res) => this.posts.set(res.data)),
+      tap((res) => {
+        this.posts.set(res.data.data);
+        this.lastPage.set(res.data.lastPage);
+      }),
     );
   }
 
